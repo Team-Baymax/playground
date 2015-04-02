@@ -32,7 +32,10 @@ io.on('connection', function(socket){
     // Send that to view
     // socket.broadcast.emit send it to all connected clients except this one
     socket.broadcast.emit('button clicked', data);
-  })
+  });
+  socket.on('mouse move', function(data){
+    socket.broadcast.emit('mouse move', data);
+  });
 })
 
 
