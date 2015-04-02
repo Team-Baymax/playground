@@ -1,24 +1,13 @@
-// var app = require('express')();
-// var http = require('http').Server(app);
-// 
-// app.get('/view', function(req, res){
-// 	console.log(req.url);
-//   res.sendFile(__dirname + '/client' + req.url);
-// });
-// 
-// http.listen(3000, function(){
-//   console.log('listening on *:3000');
-// });
-
+// Socket Demo | Server
 
 var express = require('express');
 var path = require('path');
-var io = require('socket.io');
-
 var app = express(); // the main app
 var http = require('http').Server(app);
-var control = express();
-var view = express();
+var io = require('socket.io')(http);
+
+var control = express(); // Control Panel Sub App
+var view = express(); // Patient Sub App
 
 app.use(express.static(path.join(__dirname, 'client')));
 control.get('/', function (req, res) {
@@ -31,6 +20,21 @@ view.get('/', function (req, res) {
 
 app.use('/view', view); // mount the sub app
 app.use('/control', control); // mount the sub app
+
+// Socket Setup
+io.on('connection', function(socket){
+  console.log("user connected");
+  socket.on('disconnect', function(){
+    console.log('user disconnected');
+  });
+  socket.on('button clicked', function(data){
+    console.log('Button ID: ' + data);
+    // Send that to view
+    // socket.broadcast.emit send it to all connected clients except this one
+    socket.broadcast.emit('button clicked', data);
+  })
+})
+
 
 http.listen(3000, function(){
   console.log('listening on *:3000');
